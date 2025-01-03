@@ -18,6 +18,12 @@ timeline.xctimeline
 playground.xcworkspace
 
 .env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.staging
+
 # Finder
 .DS_Store
 

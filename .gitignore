@@ -23,7 +23,7 @@ playground.xcworkspace
 .env.production
 .env.test
 .env.staging
-**/Config.swift
+HealthByte/Config.swift
 
 # Finder
 .DS_Store

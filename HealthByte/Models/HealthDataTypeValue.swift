@@ -1,7 +1,4 @@
-/*
-See LICENSE folder for this sample’s licensing information.
-
-Abstract:
+/*Abstract:
 A data model used to describe a health data value.
 */
 

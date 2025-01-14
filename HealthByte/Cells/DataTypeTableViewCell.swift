@@ -1,7 +1,4 @@
-/*
-See LICENSE folder for this sample’s licensing information.
-
-Abstract:
+/*Abstract:
 A table view cell with a left-aligned primary value and a right-aligned secondary value.
 */
 

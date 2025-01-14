@@ -1,7 +1,4 @@
-/*
-See LICENSE folder for this sample’s licensing information.
-
-Abstract:
+/*Abstract:
 A collection view cell that displays a chart.
 */
 

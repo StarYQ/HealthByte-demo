@@ -1,7 +1,4 @@
-/*
-See LICENSE folder for this sample’s licensing information.
-
-Abstract:
+/*Abstract:
 A table view controller that displays health data with a chart header view with refresh capabilities.
 */
 

@@ -1,7 +1,4 @@
-/*
-See LICENSE folder for this sample’s licensing information.
-
-Abstract:
+/*Abstract:
 A view used for the background of table views when there is no data.
 */
 

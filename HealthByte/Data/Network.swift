@@ -1,7 +1,4 @@
-/*
-See LICENSE folder for this sample’s licensing information.
-
-Abstract:
+/*Abstract:
 Network utility functions to simulate pushing and pulling data, as well as process a mock server response.
 */
 

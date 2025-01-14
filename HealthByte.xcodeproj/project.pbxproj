@@ -8,6 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		3670BE472D02235A002F95A5 /* HealthQueryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3670BE462D022355002F95A5 /* HealthQueryTableViewController.swift */; };
+		36CE07B12D36E00A00F1AEAB /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE07B02D36E00A00F1AEAB /* Auth */; };
+		36CE07B32D36E00A00F1AEAB /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE07B22D36E00A00F1AEAB /* Functions */; };
+		36CE07B52D36E00A00F1AEAB /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE07B42D36E00A00F1AEAB /* PostgREST */; };
+		36CE07B72D36E00A00F1AEAB /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE07B62D36E00A00F1AEAB /* Realtime */; };
+		36CE07B92D36E00A00F1AEAB /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE07B82D36E00A00F1AEAB /* Storage */; };
+		36CE07BB2D36E85900F1AEAB /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE07BA2D36E85900F1AEAB /* Supabase */; };
 		EB12722B24859C1600548CD1 /* DataTypeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722A24859C1600548CD1 /* DataTypeTableViewCell.swift */; };
 		EB12722D2485BA9400548CD1 /* HealthDataTypeValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722C2485BA9400548CD1 /* HealthDataTypeValue.swift */; };
 		EB12722F2485C83E00548CD1 /* EmptyDataBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722E2485C83E00548CD1 /* EmptyDataBackgroundView.swift */; };
@@ -80,6 +86,12 @@
 			files = (
 				EB2ACB972492B2D600DEFA22 /* CareKitUI in Frameworks */,
 				F9907B09245894E600987667 /* HealthKit.framework in Frameworks */,
+				36CE07B92D36E00A00F1AEAB /* Storage in Frameworks */,
+				36CE07B32D36E00A00F1AEAB /* Functions in Frameworks */,
+				36CE07BB2D36E85900F1AEAB /* Supabase in Frameworks */,
+				36CE07B72D36E00A00F1AEAB /* Realtime in Frameworks */,
+				36CE07B12D36E00A00F1AEAB /* Auth in Frameworks */,
+				36CE07B52D36E00A00F1AEAB /* PostgREST in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,6 +292,12 @@
 			name = HealthByte;
 			packageProductDependencies = (
 				EB2ACB962492B2D600DEFA22 /* CareKitUI */,
+				36CE07B02D36E00A00F1AEAB /* Auth */,
+				36CE07B22D36E00A00F1AEAB /* Functions */,
+				36CE07B42D36E00A00F1AEAB /* PostgREST */,
+				36CE07B62D36E00A00F1AEAB /* Realtime */,
+				36CE07B82D36E00A00F1AEAB /* Storage */,
+				36CE07BA2D36E85900F1AEAB /* Supabase */,
 			);
 			productName = WWDCDemo;
 			productReference = F9907AEF2458947C00987667 /* HealthByte.app */;
@@ -311,6 +329,7 @@
 			mainGroup = F9907AE62458947B00987667;
 			packageReferences = (
 				EB2ACB952492B2D600DEFA22 /* XCRemoteSwiftPackageReference "CareKit" */,
+				36CE07AF2D36E00A00F1AEAB /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			productRefGroup = F9907AF02458947C00987667 /* Products */;
 			projectDirPath = "";
@@ -575,6 +594,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		36CE07AF2D36E00A00F1AEAB /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase-community/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
 		EB2ACB952492B2D600DEFA22 /* XCRemoteSwiftPackageReference "CareKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/carekit-apple/CareKit";
@@ -586,6 +613,36 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		36CE07B02D36E00A00F1AEAB /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36CE07AF2D36E00A00F1AEAB /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		36CE07B22D36E00A00F1AEAB /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36CE07AF2D36E00A00F1AEAB /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		36CE07B42D36E00A00F1AEAB /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36CE07AF2D36E00A00F1AEAB /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		36CE07B62D36E00A00F1AEAB /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36CE07AF2D36E00A00F1AEAB /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		36CE07B82D36E00A00F1AEAB /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36CE07AF2D36E00A00F1AEAB /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		36CE07BA2D36E85900F1AEAB /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36CE07AF2D36E00A00F1AEAB /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
 		EB2ACB962492B2D600DEFA22 /* CareKitUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = EB2ACB952492B2D600DEFA22 /* XCRemoteSwiftPackageReference "CareKit" */;

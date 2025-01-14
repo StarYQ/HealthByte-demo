@@ -30,7 +30,7 @@ class HealthDataTableViewController: DataTableViewController {
     // MARK: - Button Selectors
 
     @objc
-    private func didTapLeftBarButtonItem() {
+    func didTapLeftBarButtonItem() {
         refreshData()
     }
     

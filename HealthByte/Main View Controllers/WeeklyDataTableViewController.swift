@@ -1,7 +1,3 @@
-/*Abstract:
-A view controller that displays quantity sample statistics for the week.
-*/
-
 import UIKit
 import HealthKit
 
@@ -25,9 +21,10 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        // If we already have a query, skip
         if query != nil { return }
         
-        // Request authorization.
+        // Request HealthKit authorization for reading/writing steps
         let dataTypeValues = Set([quantityType])
         
         print("Requesting HealthKit authorization...")
@@ -38,6 +35,31 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
             }
         }
     }
+
+    override func setUpNavigationController() {
+        super.setUpNavigationController()
+        
+        // Keep or override the existing Refresh button:
+        let refreshButton = UIBarButtonItem(
+            title: "Refresh",
+            style: .plain,
+            target: self,
+            action: #selector(didTapLeftBarButtonItem)
+        )
+        
+        // Add an Update Steps button on the right
+        let updateStepsButton = UIBarButtonItem(
+            title: "Update Steps",
+            style: .plain,
+            target: self,
+            action: #selector(didTapUpdateSteps)
+        )
+
+        navigationItem.leftBarButtonItem = refreshButton
+        navigationItem.rightBarButtonItem = updateStepsButton
+    }
+    
+    // MARK: - HealthKit Data
     
     func calculateDailyQuantitySamplesForPastWeek() {
         performQuery {
@@ -46,22 +68,21 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
             }
         }
     }
-    
-    // MARK: - HealthQueryDataSource
-    
+
     func performQuery(completion: @escaping () -> Void) {
         let predicate = createLastWeekPredicate()
         let anchorDate = createAnchorDate()
         let dailyInterval = DateComponents(day: 1)
         let statisticsOptions = getStatisticsOptions(for: dataTypeIdentifier)
 
-        let query = HKStatisticsCollectionQuery(quantityType: quantityType,
-                                                 quantitySamplePredicate: predicate,
-                                                 options: statisticsOptions,
-                                                 anchorDate: anchorDate,
-                                                 intervalComponents: dailyInterval)
+        let query = HKStatisticsCollectionQuery(
+            quantityType: quantityType,
+            quantitySamplePredicate: predicate,
+            options: statisticsOptions,
+            anchorDate: anchorDate,
+            intervalComponents: dailyInterval
+        )
         
-        // The handler block for the HKStatisticsCollection object.
         let updateInterfaceWithStatistics: (HKStatisticsCollection) -> Void = { statisticsCollection in
             self.dataValues = []
             
@@ -69,10 +90,12 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
             let startDate = getLastWeekStartDate()
             let endDate = now
             
-            statisticsCollection.enumerateStatistics(from: startDate, to: endDate) { [weak self] (statistics, stop) in
-                var dataValue = HealthDataTypeValue(startDate: statistics.startDate,
-                                                    endDate: statistics.endDate,
-                                                    value: 0)
+            statisticsCollection.enumerateStatistics(from: startDate, to: endDate) { [weak self] (statistics, _) in
+                var dataValue = HealthDataTypeValue(
+                    startDate: statistics.startDate,
+                    endDate: statistics.endDate,
+                    value: 0
+                )
                 
                 if let quantity = getStatisticsQuantity(for: statistics, with: statisticsOptions),
                    let identifier = self?.dataTypeIdentifier,
@@ -86,15 +109,16 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
             completion()
         }
         
-        query.initialResultsHandler = { query, statisticsCollection, error in
+        query.initialResultsHandler = { _, statisticsCollection, _ in
             if let statisticsCollection = statisticsCollection {
                 updateInterfaceWithStatistics(statisticsCollection)
             }
         }
         
-        query.statisticsUpdateHandler = { [weak self] query, statistics, statisticsCollection, error in
-            // Ensure we only update the interface if the visible data type is updated
-            if let statisticsCollection = statisticsCollection, query.objectType?.identifier == self?.dataTypeIdentifier {
+        query.statisticsUpdateHandler = { [weak self] query, _, statisticsCollection, _ in
+            // Only update if the query's objectType matches our dataType
+            if let statisticsCollection = statisticsCollection,
+               query.objectType?.identifier == self?.dataTypeIdentifier {
                 updateInterfaceWithStatistics(statisticsCollection)
             }
         }
@@ -110,5 +134,50 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
             self.healthStore.stop(query)
         }
     }
-}
+    
+    // MARK: - Upsert Weekly Steps in Supabase
+    
+    @objc private func didTapUpdateSteps() {
+        Task {
+            await updateWeeklyStepCountInSupabase()
+        }
+    }
 
+    private func updateWeeklyStepCountInSupabase() async {
+        guard let user = SupabaseManager.shared.client.auth.currentUser else {
+            print("No authenticated user – cannot update steps.")
+            return
+        }
+
+        // Sum the step data for the past week
+        let totalSteps = Int(dataValues.reduce(0, { $0 + $1.value }))
+
+        // Build a struct matching columns in user_profiles
+        struct UserProfile: Codable {
+            let user_id: UUID
+            let total_weekly_steps: Int
+        }
+        
+        let profile = UserProfile(user_id: user.id, total_weekly_steps: totalSteps)
+
+        do {
+            // Upsert to user_profiles
+            try await SupabaseManager.shared.client
+                .from("user_profiles")
+                .upsert(profile)
+                .execute()
+            
+            DispatchQueue.main.async {
+                let alert = UIAlertController(
+                    title: "Steps Updated",
+                    message: "Your weekly step count has been upserted to Supabase!",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: true)
+            }
+        } catch {
+            print("Failed to upsert user_profiles:", error.localizedDescription)
+        }
+    }
+}

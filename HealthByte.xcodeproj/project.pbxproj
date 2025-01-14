@@ -15,6 +15,7 @@
 		36CE07B92D36E00A00F1AEAB /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE07B82D36E00A00F1AEAB /* Storage */; };
 		36CE07BB2D36E85900F1AEAB /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE07BA2D36E85900F1AEAB /* Supabase */; };
 		36CE07C12D36EAE200F1AEAB /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CE07C02D36EAE000F1AEAB /* SupabaseManager.swift */; };
+		36CE07CD2D36F81D00F1AEAB /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CE07CC2D36F81800F1AEAB /* AuthViewController.swift */; };
 		EB12722B24859C1600548CD1 /* DataTypeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722A24859C1600548CD1 /* DataTypeTableViewCell.swift */; };
 		EB12722D2485BA9400548CD1 /* HealthDataTypeValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722C2485BA9400548CD1 /* HealthDataTypeValue.swift */; };
 		EB12722F2485C83E00548CD1 /* EmptyDataBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722E2485C83E00548CD1 /* EmptyDataBackgroundView.swift */; };
@@ -47,6 +48,7 @@
 /* Begin PBXFileReference section */
 		3670BE462D022355002F95A5 /* HealthQueryTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthQueryTableViewController.swift; sourceTree = "<group>"; };
 		36CE07C02D36EAE000F1AEAB /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
+		36CE07CC2D36F81800F1AEAB /* AuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
 		8037822B27C5C24067AC1EBF /* SampleCode.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = SampleCode.xcconfig; path = Configuration/SampleCode.xcconfig; sourceTree = "<group>"; };
 		EB12722A24859C1600548CD1 /* DataTypeTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTypeTableViewCell.swift; sourceTree = "<group>"; };
 		EB12722C2485BA9400548CD1 /* HealthDataTypeValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthDataTypeValue.swift; sourceTree = "<group>"; };
@@ -254,6 +256,7 @@
 		F9907AF12458947C00987667 /* HealthByte */ = {
 			isa = PBXGroup;
 			children = (
+				36CE07CC2D36F81800F1AEAB /* AuthViewController.swift */,
 				36CE07C02D36EAE000F1AEAB /* SupabaseManager.swift */,
 				F9907AF22458947C00987667 /* AppDelegate.swift */,
 				F9907AF42458947C00987667 /* SceneDelegate.swift */,
@@ -378,6 +381,7 @@
 				EB48C1C1246B2EB800AE8FE3 /* UIApplication+Extension.swift in Sources */,
 				36CE07C12D36EAE200F1AEAB /* SupabaseManager.swift in Sources */,
 				EB1272332485D5D200548CD1 /* DataTableViewController.swift in Sources */,
+				36CE07CD2D36F81D00F1AEAB /* AuthViewController.swift in Sources */,
 				EB326B4E246B16AD00FEFD08 /* MainTabViewController.swift in Sources */,
 				EB48C1CA246B3A0300AE8FE3 /* ChartViewStyle.swift in Sources */,
 				EB48C1C4246B351C00AE8FE3 /* CareKitSupport.swift in Sources */,

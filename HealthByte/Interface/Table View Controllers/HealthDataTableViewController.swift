@@ -35,7 +35,7 @@ class HealthDataTableViewController: DataTableViewController {
     }
     
     // MARK:  - Refresh
-    private func refreshData() {
+    func refreshData() {
         HealthData.requestHealthDataAccessIfNeeded(dataTypes: [self.dataTypeIdentifier]) { [weak self] (success) in
             guard let self = self else { return }
             if success {

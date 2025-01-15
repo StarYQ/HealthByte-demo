@@ -35,19 +35,16 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
             }
         }
     }
+    
+    /// We remove the local creation of the Refresh button so we don’t conflict
+    /// with the one in `HealthDataTableViewController`. Instead, keep using the
+    /// “Refresh” button inherited from the parent class.
 
     override func setUpNavigationController() {
+        // Call super so the parent sets up its refresh button
         super.setUpNavigationController()
         
-        // Keep or override the existing Refresh button:
-        let refreshButton = UIBarButtonItem(
-            title: "Refresh",
-            style: .plain,
-            target: self,
-            action: #selector(didTapLeftBarButtonItem)
-        )
-        
-        // Add an Update Steps button on the right
+        // Create only our "Update Steps" on the right
         let updateStepsButton = UIBarButtonItem(
             title: "Update Steps",
             style: .plain,
@@ -55,10 +52,26 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
             action: #selector(didTapUpdateSteps)
         )
 
-        navigationItem.leftBarButtonItem = refreshButton
         navigationItem.rightBarButtonItem = updateStepsButton
     }
     
+    // MARK: - Overriding refreshData
+    
+    /// Called when the inherited "Refresh" button is tapped.
+    /// Re-requests HealthKit authorization, then re-queries for data.
+    override func refreshData() {
+        HealthData.requestHealthDataAccessIfNeeded(dataTypes: [dataTypeIdentifier]) { [weak self] success in
+            guard let self = self else { return }
+            if success {
+                // If re-authorized, re-run the query for the last week’s data
+                DispatchQueue.main.async {
+                    self.updateNavigationItem()
+                }
+                self.calculateDailyQuantitySamplesForPastWeek()
+            }
+        }
+    }
+
     // MARK: - HealthKit Data
     
     func calculateDailyQuantitySamplesForPastWeek() {
@@ -116,7 +129,6 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
         }
         
         query.statisticsUpdateHandler = { [weak self] query, _, statisticsCollection, _ in
-            // Only update if the query's objectType matches our dataType
             if let statisticsCollection = statisticsCollection,
                query.objectType?.identifier == self?.dataTypeIdentifier {
                 updateInterfaceWithStatistics(statisticsCollection)

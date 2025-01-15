@@ -22,11 +22,15 @@ class AuthViewController: UIViewController {
         emailTextField.placeholder = "Email"
         emailTextField.autocapitalizationType = .none
         emailTextField.borderStyle = .roundedRect
+        if #available(iOS 10.0, *) {
+            emailTextField.textContentType = .username
+        }
         
         passwordTextField.placeholder = "Password"
         passwordTextField.autocapitalizationType = .none
         passwordTextField.isSecureTextEntry = true
         passwordTextField.borderStyle = .roundedRect
+        passwordTextField.textContentType = .oneTimeCode
     }
     
     private func setupButtons() {

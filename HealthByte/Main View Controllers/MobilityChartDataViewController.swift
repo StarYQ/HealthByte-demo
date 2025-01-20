@@ -78,8 +78,6 @@ class MobilityChartDataViewController: DataTypeCollectionViewController {
             
             // Update anchor for sample type
             HealthData.updateAnchor(newAnchor, from: query)
-            
-            Network.push(addedSamples: samplesOrNil, deletedSamples: deletedObjectsOrNil)
         }
         
         // Create update handler for long-running background query
@@ -96,9 +94,6 @@ class MobilityChartDataViewController: DataTypeCollectionViewController {
             
             // Update anchor for sample type
             HealthData.updateAnchor(newAnchor, from: query)
-            
-            // The results come back on an anonymous background queue.
-            Network.push(addedSamples: samplesOrNil, deletedSamples: deletedObjectsOrNil)
         }
         
         HealthData.healthStore.execute(query)

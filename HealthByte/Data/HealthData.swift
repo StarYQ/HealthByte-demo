@@ -12,22 +12,15 @@ class HealthData {
     // MARK: - Data Types
     
     static var readDataTypes: [HKSampleType] {
-        return allHealthDataTypes
-    }
-    
-    private static var allHealthDataTypes: [HKSampleType] {
-        let typeIdentifiers: [String] = [
-            HKQuantityTypeIdentifier.stepCount.rawValue
-        ]
-        
-        return typeIdentifiers.compactMap { getSampleType(for: $0) }
+        return [HKQuantityType.quantityType(forIdentifier: .stepCount)!]
     }
     
     // MARK: - Authorization
     
-    /// Request health data from HealthKit if needed, using the data types within `HealthData.allHealthDataTypes`
+    /// Request health data from HealthKit if needed, using the data types within `HealthData.readDataTypes`
+    /// (If we want to support multiple sample types, switch to using an array of types instead of just the stepCount type)
     class func requestHealthDataAccessIfNeeded(dataTypes: [String]? = nil, completion: @escaping (_ success: Bool) -> Void) {
-        var readDataTypes = Set(allHealthDataTypes)
+        var readDataTypes = Set(readDataTypes)
         
         if let dataTypeIdentifiers = dataTypes {
             readDataTypes = Set(dataTypeIdentifiers.compactMap { getSampleType(for: $0) })

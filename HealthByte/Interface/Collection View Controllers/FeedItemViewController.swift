@@ -116,7 +116,7 @@ class DataTypeCollectionViewController: UIViewController {
     private func calculateCellHeight(horizontalMargin: CGFloat, verticalMargin: CGFloat) -> CGFloat {
         let isLandscape = UIApplication.shared.isLandscape
         let widthInset = (horizontalMargin * 2) + view.safeAreaInsets.left + view.safeAreaInsets.right
-        var heightInset = (verticalMargin * 2) // safeAreaInsets already accounted for in tabBar bounds.
+        var heightInset = (verticalMargin * 2) // safeAreaInsets are accounted for in tabBar bounds.
         
         heightInset += navigationController?.navigationBar.bounds.height ?? 0
         heightInset += tabBarController?.tabBar.bounds.height ?? 0

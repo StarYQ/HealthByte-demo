@@ -36,9 +36,7 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
         }
     }
     
-    /// We remove the local creation of the Refresh button so we don’t conflict
-    /// with the one in `HealthDataTableViewController`. Instead, keep using the
-    /// “Refresh” button inherited from the parent class.
+    /// We use the “Refresh” button inherited from the parent class.
 
     override func setUpNavigationController() {
         // Call super so the parent sets up its refresh button

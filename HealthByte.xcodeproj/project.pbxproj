@@ -29,7 +29,6 @@
 		EB48C1C4246B351C00AE8FE3 /* CareKitSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB48C1C3246B351C00AE8FE3 /* CareKitSupport.swift */; };
 		EB48C1CA246B3A0300AE8FE3 /* ChartViewStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB48C1C9246B3A0300AE8FE3 /* ChartViewStyle.swift */; };
 		EB644F9F24730E2B00CF27F0 /* MobilityChartDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB644F9E24730E2B00CF27F0 /* MobilityChartDataViewController.swift */; };
-		EB644FA1247311DF00CF27F0 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB644FA0247311DF00CF27F0 /* Network.swift */; };
 		EB9525B52474C282001B5178 /* HealthDataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9525B42474C282001B5178 /* HealthDataTableViewController.swift */; };
 		EB9525B72474C396001B5178 /* WeeklyDataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9525B62474C396001B5178 /* WeeklyDataTableViewController.swift */; };
 		EB9525BA2474C8F2001B5178 /* ChartTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9525B92474C8F2001B5178 /* ChartTableViewController.swift */; };
@@ -62,7 +61,6 @@
 		EB48C1C3246B351C00AE8FE3 /* CareKitSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareKitSupport.swift; sourceTree = "<group>"; };
 		EB48C1C9246B3A0300AE8FE3 /* ChartViewStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartViewStyle.swift; sourceTree = "<group>"; };
 		EB644F9E24730E2B00CF27F0 /* MobilityChartDataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobilityChartDataViewController.swift; sourceTree = "<group>"; };
-		EB644FA0247311DF00CF27F0 /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		EB9525B42474C282001B5178 /* HealthDataTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthDataTableViewController.swift; sourceTree = "<group>"; };
 		EB9525B62474C396001B5178 /* WeeklyDataTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyDataTableViewController.swift; sourceTree = "<group>"; };
 		EB9525B92474C8F2001B5178 /* ChartTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartTableViewController.swift; sourceTree = "<group>"; };
@@ -175,7 +173,6 @@
 			isa = PBXGroup;
 			children = (
 				EB326B4F246B1B5700FEFD08 /* HealthData.swift */,
-				EB644FA0247311DF00CF27F0 /* Network.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -368,7 +365,6 @@
 				F9907AF72458947C00987667 /* FeedItemViewController.swift in Sources */,
 				EB9525BE2474C9A2001B5178 /* SplashScreenViewController.swift in Sources */,
 				EB9525BA2474C8F2001B5178 /* ChartTableViewController.swift in Sources */,
-				EB644FA1247311DF00CF27F0 /* Network.swift in Sources */,
 				EB12722F2485C83E00548CD1 /* EmptyDataBackgroundView.swift in Sources */,
 				EB9525B52474C282001B5178 /* HealthDataTableViewController.swift in Sources */,
 				EB305B7E2485E4B8007A7694 /* HealthKitSupport+Strings.swift in Sources */,

@@ -42,7 +42,7 @@ class AuthViewController: UIViewController {
     }
     
     private func layoutViews() {
-        // Simple vertical stack layout, adapt as needed
+        // Simple vertical stack layout
         let stack = UIStackView(arrangedSubviews: [emailTextField, passwordTextField, signUpButton, signInButton])
         stack.axis = .vertical
         stack.spacing = 16
@@ -82,7 +82,7 @@ class AuthViewController: UIViewController {
         do {
             // 1) Sign Up
             try await SupabaseManager.shared.client.auth.signUp(email: email, password: password)
-            // 2) Then sign in (or prompt them to do so)
+            // 2) Then sign in
             try await SupabaseManager.shared.client.auth.signIn(email: email, password: password)
             
             dismissAuthFlow()
@@ -106,7 +106,7 @@ class AuthViewController: UIViewController {
     }
 
     private func dismissAuthFlow() {
-        // Replace root VC with MainTabViewController once authenticated
+        // Replaces root VC with MainTabViewController once authenticated
         DispatchQueue.main.async {
             if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate,
                let window = sceneDelegate.window {

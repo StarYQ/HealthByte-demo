@@ -1,3 +1,6 @@
+/*Abstract:
+The Supabase client.
+*/
 import Foundation
 import Supabase
 

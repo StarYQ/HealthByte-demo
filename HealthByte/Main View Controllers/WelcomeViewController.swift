@@ -7,8 +7,6 @@ class WelcomeViewController: SplashScreenViewController, SplashScreenViewControl
     
     /// The HealthKit data types we will request to read.
     let readTypes = Set(HealthData.readDataTypes)
-    /// The HealthKit data types we will request to share and have write access.
-    let shareTypes = Set(HealthData.shareDataTypes)
     
     var hasRequestedHealthData: Bool = false
     
@@ -47,7 +45,7 @@ class WelcomeViewController: SplashScreenViewController, SplashScreenViewControl
             return
         }
         
-        healthStore.getRequestStatusForAuthorization(toShare: shareTypes, read: readTypes) { (authorizationRequestStatus, error) in
+        healthStore.getRequestStatusForAuthorization(toShare: [], read: readTypes) { (authorizationRequestStatus, error) in
             var status: String = ""
             if let error = error {
                 status = "HealthKit Authorization Error: \(error.localizedDescription)"
@@ -61,7 +59,7 @@ class WelcomeViewController: SplashScreenViewController, SplashScreenViewControl
                 case .unnecessary:
                     self.hasRequestedHealthData = true
                     status = "The application has already requested authorization. "
-                    status += self.createAuthorizationStatusDescription(for: self.shareTypes)
+                    status += self.createAuthorizationStatusDescription(for: self.readTypes)
                 @unknown default:
                     break
                 }
@@ -90,7 +88,7 @@ class WelcomeViewController: SplashScreenViewController, SplashScreenViewControl
             return
         }
         
-        healthStore.requestAuthorization(toShare: shareTypes, read: readTypes) { (success, error) in
+        healthStore.requestAuthorization(toShare: [], read: readTypes) { (success, error) in
             var status: String = ""
             
             if let error = error {
@@ -103,7 +101,7 @@ class WelcomeViewController: SplashScreenViewController, SplashScreenViewControl
                         status = "HealthKit authorization request was successful! "
                     }
                     
-                    status += self.createAuthorizationStatusDescription(for: self.shareTypes)
+                    status += self.createAuthorizationStatusDescription(for: self.readTypes)
                     
                     self.hasRequestedHealthData = true
                 } else {

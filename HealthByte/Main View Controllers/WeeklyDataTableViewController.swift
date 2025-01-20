@@ -29,7 +29,7 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
         
         print("Requesting HealthKit authorization...")
         
-        self.healthStore.requestAuthorization(toShare: dataTypeValues, read: dataTypeValues) { (success, error) in
+        self.healthStore.requestAuthorization(toShare: [], read: dataTypeValues) { (success, error) in
             if success {
                 self.calculateDailyQuantitySamplesForPastWeek()
             }

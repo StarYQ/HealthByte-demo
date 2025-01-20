@@ -15,10 +15,6 @@ class HealthData {
         return allHealthDataTypes
     }
     
-    static var shareDataTypes: [HKSampleType] {
-        return allHealthDataTypes
-    }
-    
     private static var allHealthDataTypes: [HKSampleType] {
         let typeIdentifiers: [String] = [
             HKQuantityTypeIdentifier.stepCount.rawValue
@@ -32,26 +28,23 @@ class HealthData {
     /// Request health data from HealthKit if needed, using the data types within `HealthData.allHealthDataTypes`
     class func requestHealthDataAccessIfNeeded(dataTypes: [String]? = nil, completion: @escaping (_ success: Bool) -> Void) {
         var readDataTypes = Set(allHealthDataTypes)
-        var shareDataTypes = Set(allHealthDataTypes)
         
         if let dataTypeIdentifiers = dataTypes {
             readDataTypes = Set(dataTypeIdentifiers.compactMap { getSampleType(for: $0) })
-            shareDataTypes = readDataTypes
         }
         
-        requestHealthDataAccessIfNeeded(toShare: shareDataTypes, read: readDataTypes, completion: completion)
+        requestHealthDataAccessIfNeeded(read: readDataTypes, completion: completion)
     }
     
     /// Request health data from HealthKit if needed.
-    class func requestHealthDataAccessIfNeeded(toShare shareTypes: Set<HKSampleType>?,
-                                               read readTypes: Set<HKObjectType>?,
+    class func requestHealthDataAccessIfNeeded(read readTypes: Set<HKObjectType>?,
                                                completion: @escaping (_ success: Bool) -> Void) {
         if !HKHealthStore.isHealthDataAvailable() {
             fatalError("Health data is not available!")
         }
         
         print("Requesting HealthKit authorization...")
-        healthStore.requestAuthorization(toShare: shareTypes, read: readTypes) { (success, error) in
+        healthStore.requestAuthorization(toShare: [], read: readTypes) { (success, error) in
             if let error = error {
                 print("requestAuthorization error:", error.localizedDescription)
             }

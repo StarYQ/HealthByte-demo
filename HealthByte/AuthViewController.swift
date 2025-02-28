@@ -84,24 +84,23 @@ class AuthViewController: UIViewController {
             try await SupabaseManager.shared.client.auth.signUp(email: email, password: password)
             // 2) Then sign in
             try await SupabaseManager.shared.client.auth.signIn(email: email, password: password)
+            debugCurrentSession()
             
             guard let user = SupabaseManager.shared.client.auth.currentUser else {
                 print("User creation failed - can not get user")
                 return
             }
-            // Build a struct matching columns in user_profiles
-            struct UserProfile: Codable {
-                let user_id: UUID
-                let total_weekly_steps: Int
+            // Build a struct matching columns in Patient table (clinician is not assigned immediately)
+            struct PatientProfile: Codable {
+                let authId: String
+                let stepCount: Int
             }
             
             // For now, set a flag value, -1, to new accounts for which data has not yet been updated
-            let profile = UserProfile(user_id: user.id, total_weekly_steps: -1)
-            
-            // 3) Then upsert new profile to user_profiles
-                // Upsert to user_profiles
+            let profile = PatientProfile(authId: user.id.uuidString.lowercased(), stepCount: -1)
+            // 3) Then upsert new profile to Patient table
             try await SupabaseManager.shared.client
-                .from("user_profiles")
+                .from("Patient")
                 .insert(profile)
                 .execute()
             
@@ -116,7 +115,18 @@ class AuthViewController: UIViewController {
             }
             dismissAuthFlow()
         } catch {
-            print("Sign-up failed:", error.localizedDescription)
+            // Print general error
+            print("Sign-up failed: \(error)")
+
+            // Try to extract more details from the error
+            let nsError = error as NSError
+            print("Error domain: \(nsError.domain)")
+            print("Error code: \(nsError.code)")
+            print("Error description: \(nsError.localizedDescription)")
+
+            if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError {
+                print("Underlying error: \(underlyingError.localizedDescription)")
+            }
         }
     }
 
@@ -144,5 +154,46 @@ class AuthViewController: UIViewController {
                 window.makeKeyAndVisible()
             }
         }
+    }
+    
+    // MARK: - Debugging
+    func debugCurrentSession() {
+        if let session = SupabaseManager.shared.client.auth.currentSession {
+            print("=== Current Session ===")
+            print("Access Token: \(session.accessToken)")
+            print("Refresh Token: \(session.refreshToken)")
+            print("Expires At: \(session.expiresAt)")
+            
+            // Optionally, decode the JWT to log the uid (if your JWT includes it)
+            if let jwtPayload = decode(jwt: session.accessToken) {
+                print("Decoded JWT Payload: \(jwtPayload)")
+            }
+        } else {
+            print("No current session available.")
+        }
+    }
+
+    /// A simple JWT decoder that splits the token and decodes the payload (base64 encoded).
+    /// Note: This is a simple decoder for debugging purposes only and does not validate the token.
+    func decode(jwt token: String) -> [String: Any]? {
+        let segments = token.components(separatedBy: ".")
+        guard segments.count > 1 else { return nil }
+        
+        var base64String = segments[1]
+        
+        // Fix base64 padding if necessary
+        let requiredLength = 4 * ((base64String.count + 3) / 4)
+        let paddingLength = requiredLength - base64String.count
+        if paddingLength > 0 {
+            base64String += String(repeating: "=", count: paddingLength)
+        }
+        
+        guard let data = Data(base64Encoded: base64String, options: []),
+              let json = try? JSONSerialization.jsonObject(with: data, options: []),
+              let payload = json as? [String: Any] else {
+            return nil
+        }
+        
+        return payload
     }
 }

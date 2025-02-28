@@ -158,21 +158,15 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
             print("No authenticated user – cannot update steps.")
             return
         }
-
         // Sum the step data for the past week
         let totalSteps = Int(dataValues.reduce(0, { $0 + $1.value }))
-
-        // Build a struct matching columns in user_profiles
-        struct UserProfile: Codable {
-            let user_id: UUID
-            let total_weekly_steps: Int
-        }
+        print(totalSteps)
         do {
-            // Update profile in user_profiles
+            // Update profile in Patient table
             try await SupabaseManager.shared.client
-                .from("user_profiles")
-                .update(["total_weekly_steps": totalSteps])
-                .eq("user_id", value: user.id)
+                .from("Patient")
+                .update(["stepCount": totalSteps])
+                .eq("authId", value: user.id.uuidString.lowercased())
                 .execute()
             
             DispatchQueue.main.async {
@@ -185,7 +179,7 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
                 self.present(alert, animated: true)
             }
         } catch {
-            print("Failed to update user_profiles:", error.localizedDescription)
+            print("Failed to update Patient stepCount:", error.localizedDescription)
         }
     }
 }

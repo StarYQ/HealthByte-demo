@@ -102,7 +102,7 @@ class AuthViewController: UIViewController {
                 // Upsert to user_profiles
             try await SupabaseManager.shared.client
                 .from("user_profiles")
-                .upsert(profile)
+                .insert(profile)
                 .execute()
             
             DispatchQueue.main.async {

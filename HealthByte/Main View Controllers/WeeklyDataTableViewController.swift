@@ -160,7 +160,7 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
         }
         // Sum the step data for the past week
         let totalSteps = Int(dataValues.reduce(0, { $0 + $1.value }))
-        print(totalSteps)
+        
         do {
             // Update profile in Patient table
             try await SupabaseManager.shared.client

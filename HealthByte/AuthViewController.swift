@@ -85,6 +85,35 @@ class AuthViewController: UIViewController {
             // 2) Then sign in
             try await SupabaseManager.shared.client.auth.signIn(email: email, password: password)
             
+            guard let user = SupabaseManager.shared.client.auth.currentUser else {
+                print("User creation failed - can not get user")
+                return
+            }
+            // Build a struct matching columns in user_profiles
+            struct UserProfile: Codable {
+                let user_id: UUID
+                let total_weekly_steps: Int
+            }
+            
+            // For now, set a flag value, -1, to new accounts for which data has not yet been updated
+            let profile = UserProfile(user_id: user.id, total_weekly_steps: -1)
+            
+            // 3) Then upsert new profile to user_profiles
+                // Upsert to user_profiles
+            try await SupabaseManager.shared.client
+                .from("user_profiles")
+                .upsert(profile)
+                .execute()
+            
+            DispatchQueue.main.async {
+                let alert = UIAlertController(
+                    title: "Account created",
+                    message: "Your account has been created!",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: true)
+            }
             dismissAuthFlow()
         } catch {
             print("Sign-up failed:", error.localizedDescription)

@@ -167,14 +167,12 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
             let user_id: UUID
             let total_weekly_steps: Int
         }
-        
-        let profile = UserProfile(user_id: user.id, total_weekly_steps: totalSteps)
-
         do {
-            // Upsert to user_profiles
+            // Update profile in user_profiles
             try await SupabaseManager.shared.client
                 .from("user_profiles")
-                .upsert(profile)
+                .update(["total_weekly_steps": totalSteps])
+                .eq("user_id", value: user.id)
                 .execute()
             
             DispatchQueue.main.async {
@@ -187,7 +185,7 @@ class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, He
                 self.present(alert, animated: true)
             }
         } catch {
-            print("Failed to upsert user_profiles:", error.localizedDescription)
+            print("Failed to update user_profiles:", error.localizedDescription)
         }
     }
 }

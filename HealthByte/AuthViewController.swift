@@ -96,7 +96,6 @@ class AuthViewController: UIViewController {
             try await SupabaseManager.shared.client.auth.signUp(email: email, password: password)
             // 2) Then sign in
             try await SupabaseManager.shared.client.auth.signIn(email: email, password: password)
-            debugCurrentSession()
             
             guard let user = SupabaseManager.shared.client.auth.currentUser else {
                 print("User creation failed - can not get user")
@@ -167,46 +166,5 @@ class AuthViewController: UIViewController {
                 window.makeKeyAndVisible()
             }
         }
-    }
-    
-    // MARK: - Debugging
-    func debugCurrentSession() {
-        if let session = SupabaseManager.shared.client.auth.currentSession {
-            print("=== Current Session ===")
-            print("Access Token: \(session.accessToken)")
-            print("Refresh Token: \(session.refreshToken)")
-            print("Expires At: \(session.expiresAt)")
-            
-            // Optionally, decode the JWT to log the uid (if your JWT includes it)
-            if let jwtPayload = decode(jwt: session.accessToken) {
-                print("Decoded JWT Payload: \(jwtPayload)")
-            }
-        } else {
-            print("No current session available.")
-        }
-    }
-
-    /// A simple JWT decoder that splits the token and decodes the payload (base64 encoded).
-    /// Note: This is a simple decoder for debugging purposes only and does not validate the token.
-    func decode(jwt token: String) -> [String: Any]? {
-        let segments = token.components(separatedBy: ".")
-        guard segments.count > 1 else { return nil }
-        
-        var base64String = segments[1]
-        
-        // Fix base64 padding if necessary
-        let requiredLength = 4 * ((base64String.count + 3) / 4)
-        let paddingLength = requiredLength - base64String.count
-        if paddingLength > 0 {
-            base64String += String(repeating: "=", count: paddingLength)
-        }
-        
-        guard let data = Data(base64Encoded: base64String, options: []),
-              let json = try? JSONSerialization.jsonObject(with: data, options: []),
-              let payload = json as? [String: Any] else {
-            return nil
-        }
-        
-        return payload
     }
 }

@@ -3,6 +3,8 @@ import Supabase
 
 class AuthViewController: UIViewController {
     
+    private let firstNameTextField = UITextField()
+    private let lastNameTextField = UITextField()
     private let emailTextField = UITextField()
     private let passwordTextField = UITextField()
     private let signUpButton = UIButton(type: .system)
@@ -19,6 +21,14 @@ class AuthViewController: UIViewController {
     }
     
     private func setupTextFields() {
+        firstNameTextField.placeholder = "First Name"
+        firstNameTextField.autocapitalizationType = .none
+        firstNameTextField.borderStyle = .roundedRect
+        
+        lastNameTextField.placeholder = "Last Name"
+        lastNameTextField.autocapitalizationType = .none
+        lastNameTextField.borderStyle = .roundedRect
+        
         emailTextField.placeholder = "Email"
         emailTextField.autocapitalizationType = .none
         emailTextField.borderStyle = .roundedRect
@@ -43,7 +53,7 @@ class AuthViewController: UIViewController {
     
     private func layoutViews() {
         // Simple vertical stack layout
-        let stack = UIStackView(arrangedSubviews: [emailTextField, passwordTextField, signUpButton, signInButton])
+        let stack = UIStackView(arrangedSubviews: [firstNameTextField, lastNameTextField, emailTextField, passwordTextField, signUpButton, signInButton])
         stack.axis = .vertical
         stack.spacing = 16
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -74,10 +84,12 @@ class AuthViewController: UIViewController {
     // MARK: - Auth Logic
     
     private func handleSignUp() async {
+        let firstName = firstNameTextField.text ?? ""
+        let lastName = lastNameTextField.text ?? ""
         let email = emailTextField.text ?? ""
         let password = passwordTextField.text ?? ""
         
-        guard !email.isEmpty, !password.isEmpty else { return }
+        guard !firstName.isEmpty, !lastName.isEmpty, !email.isEmpty, !password.isEmpty else { return }
 
         do {
             // 1) Sign Up
@@ -92,12 +104,13 @@ class AuthViewController: UIViewController {
             }
             // Build a struct matching columns in Patient table (clinician is not assigned immediately)
             struct PatientProfile: Codable {
+                let name: String
                 let authId: String
                 let stepCount: Int
             }
             
             // For now, set a flag value, -1, to new accounts for which data has not yet been updated
-            let profile = PatientProfile(authId: user.id.uuidString.lowercased(), stepCount: -1)
+            let profile = PatientProfile(name: firstName + " " + lastName, authId: user.id.uuidString.lowercased(), stepCount: -1)
             // 3) Then upsert new profile to Patient table
             try await SupabaseManager.shared.client
                 .from("Patient")

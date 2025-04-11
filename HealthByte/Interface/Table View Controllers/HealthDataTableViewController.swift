@@ -17,35 +17,85 @@ class HealthDataTableViewController: DataTableViewController {
     
     override func setUpNavigationController() {
         super.setUpNavigationController()
-        // The refresh button item.
-        let leftBarButtonItem = UIBarButtonItem(title: "Refresh", style: .plain, target: self,
-                                                action: #selector(didTapLeftBarButtonItem))
-        navigationItem.leftBarButtonItem = leftBarButtonItem
+        // Left‑side “Refresh” button.
+        let refreshItem = UIBarButtonItem(title: "Refresh",
+                                          style: .plain,
+                                          target: self,
+                                          action: #selector(didTapRefreshButton))
+
+        navigationItem.leftBarButtonItem = refreshItem
+        // Right‑side “More” button (choose another Health‑data type).
+        let moreItem = UIBarButtonItem(title: "More",
+                                       style: .plain,
+                                       target: self,
+                                       action: #selector(didTapMoreButton))
+        navigationItem.rightBarButtonItem = moreItem
     }
-    
+
     func updateNavigationItem() {
         navigationItem.title = getDataTypeName(for: dataTypeIdentifier)
     }
     
-    // MARK: - Button Selectors
+    // MARK: - Button actions
 
     @objc
-    func didTapLeftBarButtonItem() {
+    private func didTapRefreshButton() {
         refreshData()
     }
+    @objc
+    private func didTapMoreButton() {
+        presentDataTypeSelectionView()
+    }
     
-    // MARK:  - Refresh
-    func refreshData() {
-        HealthData.requestHealthDataAccessIfNeeded(dataTypes: [self.dataTypeIdentifier]) { [weak self] (success) in
-            guard let self = self else { return }
-            if success {
-                DispatchQueue.main.async {
-                    self.updateNavigationItem()
+
+    // MARK: - Refresh
+    private func refreshData() {
+        HealthData.requestHealthDataAccessIfNeeded(dataTypes: [dataTypeIdentifier]) { [weak self] success in
+            guard let self = self, success else { return }
+            DispatchQueue.main.async { self.updateNavigationItem() }
+            // If this controller performs a HealthKit query, re‑run it;
+            // otherwise simply reload the existing table data.
+            if let queryProvider = self as? HealthQueryDataSource {
+                queryProvider.performQuery { [weak self] in
+                    DispatchQueue.main.async { self?.reloadData() }
                 }
-                // Otherwise, just reload the data
-                DispatchQueue.main.async { [weak self] in
-                    self?.reloadData()
+            } else {
+                DispatchQueue.main.async { self.reloadData() }
+            }
+        }
+    }
+    
+    
+    // MARK: - Data‑type switching
+    
+    private func presentDataTypeSelectionView() {
+        let alertController = UIAlertController(title: "Select Health Data Type", message: nil, preferredStyle: .actionSheet)
+        for sampleType in HealthData.readDataTypes {
+            let readableName = getDataTypeName(for: sampleType.identifier) ?? sampleType.identifier
+            let action = UIAlertAction(title: readableName, style: .default) { [weak self] _ in
+                self?.didSelectDataTypeIdentifier(sampleType.identifier)
+
+            }
+            alertController.addAction(action)
+
+        }
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alertController, animated: true)
+    }
+
+    private func didSelectDataTypeIdentifier(_ identifier: String) {
+        // Ignore no‑op selections.
+        guard identifier != dataTypeIdentifier else { return }
+        dataTypeIdentifier = identifier
+        HealthData.requestHealthDataAccessIfNeeded(dataTypes: [identifier]) { [weak self] success in
+            guard let self = self, success else { return }
+            DispatchQueue.main.async { self.updateNavigationItem() }
+            if let queryProvider = self as? HealthQueryDataSource {
+                queryProvider.performQuery { [weak self] in
+                    DispatchQueue.main.async { self?.reloadData() }
                 }
+            } else {
+                DispatchQueue.main.async { self.reloadData() }
             }
         }
     }

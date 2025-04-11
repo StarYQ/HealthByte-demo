@@ -50,6 +50,9 @@ private func preferredUnit(for identifier: String, sampleType: HKSampleType? = n
         switch quantityTypeIdentifier {
         case .stepCount:
             unit = .count()
+        case .distanceWalkingRunning, .sixMinuteWalkTestDistance:
+
+            unit = .meter()
         default:
             break
         }
@@ -95,8 +98,10 @@ func getStatisticsOptions(for dataTypeIdentifier: String) -> HKStatisticsOptions
         let quantityTypeIdentifier = HKQuantityTypeIdentifier(rawValue: dataTypeIdentifier)
         
         switch quantityTypeIdentifier {
-        case .stepCount:
+        case .stepCount, .distanceWalkingRunning:
             options = .cumulativeSum
+        case .sixMinuteWalkTestDistance:
+            options = .discreteAverage
         default:
             break
         }
@@ -112,6 +117,8 @@ func getStatisticsQuantity(for statistics: HKStatistics, with statisticsOptions:
     switch statisticsOptions {
     case .cumulativeSum:
         statisticsQuantity = statistics.sumQuantity()
+    case .discreteAverage:
+        statisticsQuantity = statistics.averageQuantity()
     default:
         break
     }

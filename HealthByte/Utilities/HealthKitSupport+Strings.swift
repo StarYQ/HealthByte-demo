@@ -18,6 +18,10 @@ func getDataTypeName(for identifier: String) -> String? {
         switch quantityTypeIdentifier {
         case .stepCount:
             description = "Step Count"
+        case .distanceWalkingRunning:
+            description = "Distance Walking + Running"
+        case .sixMinuteWalkTestDistance:
+            description = "Six-Minute Walk"
         default:
             break
         }

@@ -11,7 +11,8 @@ class MobilityChartDataViewController: DataTypeCollectionViewController {
     let calendar: Calendar = .current
     
     var mobilityContent: [String] = [
-        HKQuantityTypeIdentifier.stepCount.rawValue
+        HKQuantityTypeIdentifier.stepCount.rawValue,
+        HKQuantityTypeIdentifier.distanceWalkingRunning.rawValue
     ]
     
     var queries: [HKAnchoredObjectQuery] = []

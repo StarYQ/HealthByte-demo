@@ -9,10 +9,23 @@ class HealthData {
     
     static let healthStore: HKHealthStore = HKHealthStore()
     
+
     // MARK: - Data Types
-    
     static var readDataTypes: [HKSampleType] {
-        return [HKQuantityType.quantityType(forIdentifier: .stepCount)!]
+        return allHealthDataTypes
+    }
+
+    static var shareDataTypes: [HKSampleType] {
+        return allHealthDataTypes
+    }
+
+    private static var allHealthDataTypes: [HKSampleType] {
+        let typeIdentifiers: [String] = [
+            HKQuantityTypeIdentifier.stepCount.rawValue,
+            HKQuantityTypeIdentifier.distanceWalkingRunning.rawValue,
+            HKQuantityTypeIdentifier.sixMinuteWalkTestDistance.rawValue
+        ]
+        return typeIdentifiers.compactMap { getSampleType(for: $0) }
     }
     
     // MARK: - Authorization

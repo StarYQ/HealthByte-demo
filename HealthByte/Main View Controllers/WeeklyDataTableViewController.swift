@@ -3,183 +3,164 @@ import HealthKit
 
 class WeeklyQuantitySampleTableViewController: HealthDataTableViewController, HealthQueryDataSource {
     
-    let calendar: Calendar = .current
-    let healthStore = HealthData.healthStore
+    // MARK: ‑ Health‑Kit helpers
+    private let calendar: Calendar = .current
+    private let healthStore = HealthData.healthStore
     
-    var quantityTypeIdentifier: HKQuantityTypeIdentifier {
-        return HKQuantityTypeIdentifier(rawValue: dataTypeIdentifier)
+    private var quantityTypeIdentifier: HKQuantityTypeIdentifier {
+        HKQuantityTypeIdentifier(rawValue: dataTypeIdentifier)
+
     }
     
-    var quantityType: HKQuantityType {
-        return HKQuantityType.quantityType(forIdentifier: quantityTypeIdentifier)!
+    private var quantityType: HKQuantityType {
+
+        HKQuantityType.quantityType(forIdentifier: quantityTypeIdentifier)!
+
     }
+
+    private var query: HKStatisticsCollectionQuery?
     
-    var query: HKStatisticsCollectionQuery?
-    
-    // MARK: - View Life Cycle
-    
+    // MARK: ‑ View‑life‑cycle
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        // If we already have a query, skip
-        if query != nil { return }
-        
-        // Request HealthKit authorization for reading/writing steps
-        let dataTypeValues = Set([quantityType])
-        
-        print("Requesting HealthKit authorization...")
-        
-        self.healthStore.requestAuthorization(toShare: [], read: dataTypeValues) { (success, error) in
-            if success {
-                self.calculateDailyQuantitySamplesForPastWeek()
-            }
+        // Only set up once per appearance cycle.
+        guard query == nil else { return }
+        let readTypes = Set([quantityType])
+        print("Requesting HealthKit authorization…")
+        healthStore.requestAuthorization(toShare: [], read: readTypes) { [weak self] success, _ in
+            guard success else { return }
+            self?.calculateDailyQuantitySamplesForPastWeek()
         }
     }
     
     /// We use the “Refresh” button inherited from the parent class.
-
+    // MARK: Navigation‑bar configuration
     override func setUpNavigationController() {
         // Call super so the parent sets up its refresh button
         super.setUpNavigationController()
-        
-        // Create only our "Update Steps" on the right
-        let updateStepsButton = UIBarButtonItem(
-            title: "Update Steps",
-            style: .plain,
-            target: self,
-            action: #selector(didTapUpdateSteps)
-        )
+        // Right‑side button for uploading the aggregate value.
+        let uploadItem = UIBarButtonItem(title: uploadButtonTitle(),
+                                         style: .plain,
+                                         target: self,
+                                         action: #selector(didTapUploadButton))
+        navigationItem.rightBarButtonItem = uploadItem
+    }
 
-        navigationItem.rightBarButtonItem = updateStepsButton
+    /// Refresh the title of the right‑bar button whenever the data type changes.
+    override func updateNavigationItem() {
+        super.updateNavigationItem()
+        navigationItem.rightBarButtonItem?.title = uploadButtonTitle()
     }
     
-    // MARK: - Overriding refreshData
+
+    private func uploadButtonTitle() -> String {
+        let typeName = getDataTypeName(for: dataTypeIdentifier) ?? "Data"
+        return "Update \(typeName)"
+    }
     
-    /// Called when the inherited "Refresh" button is tapped.
-    /// Re-requests HealthKit authorization, then re-queries for data.
-    override func refreshData() {
-        HealthData.requestHealthDataAccessIfNeeded(dataTypes: [dataTypeIdentifier]) { [weak self] success in
-            guard let self = self else { return }
-            if success {
-                // If re-authorized, re-run the query for the last week’s data
-                DispatchQueue.main.async {
-                    self.updateNavigationItem()
-                }
-                self.calculateDailyQuantitySamplesForPastWeek()
-            }
+    // MARK: ‑ Health‑Kit querying
+    private func calculateDailyQuantitySamplesForPastWeek() {
+        performQuery { [weak self] in
+            DispatchQueue.main.async { self?.reloadData() }
         }
     }
-
-    // MARK: - HealthKit Data
     
-    func calculateDailyQuantitySamplesForPastWeek() {
-        performQuery {
-            DispatchQueue.main.async { [weak self] in
-                self?.reloadData()
-            }
-        }
-    }
-
     func performQuery(completion: @escaping () -> Void) {
-        let predicate = createLastWeekPredicate()
-        let anchorDate = createAnchorDate()
-        let dailyInterval = DateComponents(day: 1)
-        let statisticsOptions = getStatisticsOptions(for: dataTypeIdentifier)
-
-        let query = HKStatisticsCollectionQuery(
-            quantityType: quantityType,
-            quantitySamplePredicate: predicate,
-            options: statisticsOptions,
-            anchorDate: anchorDate,
-            intervalComponents: dailyInterval
-        )
-        
-        let updateInterfaceWithStatistics: (HKStatisticsCollection) -> Void = { statisticsCollection in
-            self.dataValues = []
-            
-            let now = Date()
+        let predicate        = createLastWeekPredicate()
+        let anchorDate       = createAnchorDate()
+        let dailyInterval    = DateComponents(day: 1)
+        let statsOptions     = getStatisticsOptions(for: dataTypeIdentifier)
+        let query = HKStatisticsCollectionQuery(quantityType: quantityType,
+                                                quantitySamplePredicate: predicate,
+                                                options: statsOptions,
+                                                anchorDate: anchorDate,
+                                                intervalComponents: dailyInterval)
+        let handleStats: (HKStatisticsCollection) -> Void = { [weak self] collection in
+            guard let self = self else { return }
+            self.dataValues.removeAll()
+            let now       = Date()
             let startDate = getLastWeekStartDate()
-            let endDate = now
-            
-            statisticsCollection.enumerateStatistics(from: startDate, to: endDate) { [weak self] (statistics, _) in
-                var dataValue = HealthDataTypeValue(
-                    startDate: statistics.startDate,
-                    endDate: statistics.endDate,
-                    value: 0
-                )
-                
-                if let quantity = getStatisticsQuantity(for: statistics, with: statisticsOptions),
-                   let identifier = self?.dataTypeIdentifier,
-                   let unit = preferredUnit(for: identifier) {
-                    dataValue.value = quantity.doubleValue(for: unit)
+            collection.enumerateStatistics(from: startDate, to: now) { stats, _ in
+                var value = 0.0
+                if let quantity = getStatisticsQuantity(for: stats, with: statsOptions),
+                   let unit = preferredUnit(for: self.dataTypeIdentifier) {
+                    value = quantity.doubleValue(for: unit)
                 }
-                
-                self?.dataValues.append(dataValue)
+                let entry = HealthDataTypeValue(startDate: stats.startDate,
+                                                endDate:   stats.endDate,
+                                                value:     value)
+                self.dataValues.append(entry)
             }
-            
             completion()
         }
-        
-        query.initialResultsHandler = { _, statisticsCollection, _ in
-            if let statisticsCollection = statisticsCollection {
-                updateInterfaceWithStatistics(statisticsCollection)
-            }
+        query.initialResultsHandler = { _, collection, _ in
+            if let collection = collection { handleStats(collection) }
         }
-        
-        query.statisticsUpdateHandler = { [weak self] query, _, statisticsCollection, _ in
-            if let statisticsCollection = statisticsCollection,
-               query.objectType?.identifier == self?.dataTypeIdentifier {
-                updateInterfaceWithStatistics(statisticsCollection)
-            }
+
+        query.statisticsUpdateHandler = { [weak self] q, _, collection, _ in
+            guard let self = self,
+                  q.objectType?.identifier == self.dataTypeIdentifier,
+                  let collection = collection else { return }
+            handleStats(collection)
         }
-        
-        self.healthStore.execute(query)
+        healthStore.execute(query)
         self.query = query
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
-        if let query = query {
-            self.healthStore.stop(query)
-        }
+        if let q = query { healthStore.stop(q) }
     }
     
-    // MARK: - Upsert Weekly Steps in Supabase
-    
-    @objc private func didTapUpdateSteps() {
-        Task {
-            await updateWeeklyStepCountInSupabase()
-        }
-    }
 
-    private func updateWeeklyStepCountInSupabase() async {
+    // MARK: ‑ Upload aggregate value to Supabase
+    @objc private func didTapUploadButton() {
+        Task { await uploadAggregateValueToSupabase() }
+    }
+    
+    /// Maps Health‑Kit identifiers to column names in the Patient table.
+    private static let columnMap: [String: String] = [
+        HKQuantityTypeIdentifier.stepCount.rawValue:              "stepCount",
+        HKQuantityTypeIdentifier.distanceWalkingRunning.rawValue: "walkingDistanceMeters",
+        HKQuantityTypeIdentifier.sixMinuteWalkTestDistance.rawValue: "sixMinuteWalkMeters"
+    ]
+
+    private func uploadAggregateValueToSupabase() async {
         guard let user = SupabaseManager.shared.client.auth.currentUser else {
-            print("No authenticated user – cannot update steps.")
+            print("No authenticated user – cannot update data.")
             return
         }
-        // Sum the step data for the past week
-        let totalSteps = Int(dataValues.reduce(0, { $0 + $1.value }))
+        guard let column = Self.columnMap[dataTypeIdentifier] else {
+            print("No Patient‑table column mapped for \(dataTypeIdentifier).")
+            return
+        }
+        let total = dataValues.reduce(0) { $0 + $1.value }
         
         do {
-            // Update profile in Patient table
-            try await SupabaseManager.shared.client
-                .from("Patient")
-                .update(["stepCount": totalSteps])
-                .eq("authId", value: user.id.uuidString.lowercased())
-                .execute()
-            
+            if column == "stepCount" {
+                let payload = [column: Int(total.rounded())]            // [String : Int]
+                _ = try await SupabaseManager.shared.client
+                    .from("Patient")
+                    .update(payload)
+                    .eq("authId", value: user.id.uuidString.lowercased())
+                    .execute()
+            } else {
+                let payload = [column: total] as [String : Double]      // [String : Double]
+                _ = try await SupabaseManager.shared.client
+                    .from("Patient")
+                    .update(payload)
+                    .eq("authId", value: user.id.uuidString.lowercased())
+                    .execute()
+            }
             DispatchQueue.main.async {
-                let alert = UIAlertController(
-                    title: "Steps Updated",
-                    message: "Your weekly step count has been upserted to Supabase!",
-                    preferredStyle: .alert
-                )
+                let alert = UIAlertController(title: "Data Updated",
+                                              message: "Your weekly \(column) has been uploaded!",
+                                              preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default))
                 self.present(alert, animated: true)
             }
         } catch {
-            print("Failed to update Patient stepCount:", error.localizedDescription)
+            print("Supabase update failed for \(column):", error.localizedDescription)
         }
     }
 }
